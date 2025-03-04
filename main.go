@@ -19,6 +19,14 @@ type Entry struct {
 }
 
 func main() {
+
+	timestamp := time.Now().Format(time.RFC3339)
+
+	if !confirm("Do you want to log your energy level?") {
+		fmt.Println("Aborted.")
+		return
+	}
+
 	mood, err := prompt("Mood (1-10):")
 	if err != nil {
 		fmt.Println("Error capturing mood:", err)
@@ -44,7 +52,7 @@ func main() {
 	}
 
 	entry := Entry{
-		Timestamp: time.Now().Format(time.RFC3339),
+		Timestamp: timestamp,
 		Mood:      toInt(mood),
 		Energy:    toInt(energy),
 		Activity:  activity,
@@ -52,6 +60,12 @@ func main() {
 	}
 
 	saveEntry(entry)
+}
+
+func confirm(question string) bool {
+	cmd := exec.Command("zenity", "--question", "--text", question)
+	err := cmd.Run()
+	return err == nil
 }
 
 func prompt(question string) (string, error) {
@@ -88,6 +102,3 @@ func saveEntry(entry Entry) {
 	data, _ := json.Marshal(entry)
 	file.WriteString(string(data) + "\n")
 }
-
-//TIP See GoLand help at <a href="https://www.jetbrains.com/help/go/">jetbrains.com/help/go/</a>.
-// Also, you can try interactive lessons for GoLand by selecting 'Help | Learn IDE Features' from the main menu.
